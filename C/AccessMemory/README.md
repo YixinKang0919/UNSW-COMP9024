@@ -22,9 +22,32 @@
         We don't discuss function pointer in this program.
 
 
-    2.   Access memory via variable names.       
+    2.   Access memory via variable names (for accessing global/local variables)
 
-    3.   Access memory via pointer variables
+         For simplicity, we only take global variables as an example in this program.
+         But global/local memory areas can be accessed similarly via variable names.
+         
+
+    3.   Access memory via pointer variables (for accessing global/local/heap variables)
+         
+         The object allocated on heap (via malloc()) does not have any name.
+         But the pointer variable 'ptr', which points to the heap object, has a name.
+         
+         void test(void) {
+            int *ptr = (int *) malloc(sizeof(int));
+            ...
+         }
+
+         
+         Memory Layout:
+
+                        --------------
+         ptr ------>     heap object
+                        --------------
+                           int
+
+        Again, we only access the global memory area via pointer variables in this program.
+        But global/local/heap memory areas can be accessed similarly via pointer variables.
 
     4.   Low-level pointer arithmetic via MemoryRead() and MemoryWrite().
 
@@ -34,11 +57,92 @@
 
     5.   Tested on a 64-bit system (Intel x86_64).
 
-                                                                    COMP9024 24T2
+                                                                    COMP9024
 
  ******************************************************************************************/
 
 ``` 
+## Introduction
+
+**Integers and Pointers**
+
+Pointer arithmetic is closely tied to the type information of the pointers involved.
+
+```C
+#include <stdio.h>
+typedef long  MM_INT_64;
+
+long number = 1000;
+long *iPtr = &number;
+long arr[4] = {10, 20, 30, 40};
+
+int main(void) {
+    long x;
+    long y;
+    // Method 1:  via the name of a variable, number
+    x = number;
+    printf("x == %ld\n", x);    
+
+    // Method 2:  via a pointer variable, iPtr
+    x = *iPtr;
+    printf("*iPtr == %ld\n", x);
+
+    // Integer Arithmetic
+    y = x + 1;
+    printf("x == %ld, y == %ld\n", x, y);
+
+    // Pointer Arithmetic
+    long *pa = &arr[0];    
+    long *pb = (pa + 1);
+    printf("pa == %p, pb == %p\n", pa, pb);
+    printf("*pa == %ld, *pb == %ld\n", *pa, *pb);
+
+    // Method 3: 
+    // Pointer  --->  Integer  ---> Integer Arithmetic  ---> Pointer
+    // Only used to verify whether your understanding is correct or not
+    x  = (MM_INT_64) (&arr[0]);
+    x = x + sizeof(arr[0]) * 2;
+    long *pc = (long *) x;
+    printf("*pc == %ld\n", *pc);
+}
+```
+
+
+**Output**
+```sh
+$ gcc -Wall IntegerPointer.c -o IntegerPointer
+$ ./IntegerPointer
+
+x == 1000
+*iPtr == 1000
+x == 1000, y == 1001
+pa == 0x55e2bbbdb040, pb == 0x55e2bbbdb048
+*pa == 10, *pb == 20
+*pc == 30
+```
+
+```C
+void MemoryWrite64(MM_INT_64 address, MM_INT_64 val) {
+    MM_INT_64 *lPtr = (MM_INT_64 *) address;
+    *lPtr = val;    
+}
+
+MM_INT_64 MemoryRead64(MM_INT_64 address) {
+    MM_INT_64 * lPtr= (MM_INT_64 *) address;
+    MM_INT_64 val = *lPtr;
+    return val;
+}
+```
+
+## Is *((T *) 0x400000) correct?
+
+It depends.
+
+On modern operating systems, address space layout randomization ([ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization)) is enabled by default.
+
+It is hard to predict which addresses have been mapped into the address space of a process at load time.
+
+However, on some embedded systems (e.g., [STM32](https://en.wikipedia.org/wiki/STM32)), *((T *) 0x400000) is a widely used technique to access hard-coded memory addresses.
 
 ## CPU and Memory
 
@@ -411,9 +515,9 @@ It is also used as a multiplication operator in "30 * 40".
 **Address operator**
 
 
-It is denoted as the ampersand symbol, &.
+Denoted as the ampersand symbol, &.
 
-t is also used as a Bitwise AND operator in "2 & 4"
+It is also used as a Bitwise AND operator in "2 & 4"
 
 **For example**
 
@@ -698,7 +802,7 @@ lVar = 2025
 
 C strings (character arrays) are terminated by null character '\0' character with value zero.
 
-In [ASCII](https://www.asciitable.com/), he NUL control code has value 0 (0x00).
+In [ASCII](https://www.asciitable.com/), the NUL control code has value 0 (0x00).
 
 
 ```C

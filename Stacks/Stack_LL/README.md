@@ -13,11 +13,80 @@
     4.  How to print the string representations of an integer x 
         (based on a stack)
 
-                                             COMP9024 24T2
+                                             COMP9024
 
  *******************************************************************/
 ``` 
 
+### Struct in C
+
+The **struct** keyword in C is used to define user-defined data types.
+
+The **typedef** keyword is used to create an alias for existing data types, making code easier to read and maintain.
+
+```C
+#include <stdio.h>
+#if 1
+// Method 1
+struct Date {
+    int day;
+    int month;
+    long year;
+};
+
+typedef struct Date DateTy;
+#else
+// Method 2
+typedef struct Date {
+    int day;
+    int month;
+    long year;
+} DateTy;
+#endif
+
+DateTy d2 = {19, 9, 2024};
+
+void PrintDateV1(struct Date date) {
+    printf("date.day = %d, date.month = %d, date.year = %ld\n",
+           date.day, 
+           date.month, 
+           date.year);
+}
+
+void PrintDateV2(struct Date *pDate) {
+    printf("pDate->day = %d, pDate->month = %d, pDate->year = %ld\n",
+           pDate->day, 
+           pDate->month, 
+           pDate->year);
+}
+
+int main(void) {
+    struct Date d = {19, 9, 2024};
+    PrintDateV1(d);
+    PrintDateV2(&d);
+    return 0;
+}
+```
+**Output**
+```sh
+$ gcc Struct.c -o Struct 
+$ ./Struct
+date.day = 19, date.month = 9, date.year = 2024
+pDate->day = 19, pDate->month = 9, pDate->year = 2024
+```
+**What is the difference between PrintDateV1() and PrintDateV2()?**
+```C
+void PrintDateV1(struct Date date) {
+    date.day = 20;
+    printf("date.day = %d, date.month = %d, date.year = %ld\n",
+           date.day, 
+           date.month, 
+           date.year);
+}
+```
+
+
+## Introduction
 A stack is an abstract data type primarily characterized by two fundamental operations:
 
 Push
@@ -32,6 +101,10 @@ Pop
 The order in which an element added to or removed from a stack is described as First In Last Out (FILO)
 or Last In First Out (LIFO).
 
+|Stack|
+|:-------------:|
+| <img src="diagrams/Pingpong.jpg" width="60%" height="60%"> |  
+
 
 In this tutorial, we will delve into the creation of a stack and its practical application in generating string representations of integers.
 
@@ -42,7 +115,7 @@ A stack can be implemented using an array ([COMP9024/Tutorials/Week3](../../Tuto
 
 Note that a call stack is a stack data structure that stores information about the active functions of a running program, 
 
-which is supported by the operating system and CPU (or by an [interpreter](https://github.com/rocky/x-python/)).
+which is supported by the operating system and CPU (or by an [interpreter](https://github.com/rocky/x-python/)) and discussed in [COMP9024/Stacks/Recursion](../Recursion/README.md).
 
 <!---
 Interestingly, recursive functions depend on the call stack ([COMP9024/Stacks/Recursion](../Recursion/README.md)).
@@ -81,19 +154,19 @@ Two configuration files (Stack_LL/.vscode/[launch.json](https://code.visualstudi
 
 
 
-#### 2.1 Open the project in VS Code
+### 2.1 Open the project in VS Code
 
 In the window of Visual Studio Code, please click "File" and "Open Folder",
 
 select the folder "COMP9024/Stacks/Stack_LL", then click the "Open" button.
 
 
-#### 2.2 Build the project in VS Code
+### 2.2 Build the project in VS Code
 
 click **Terminal -> Run Build Task**
 
 
-#### 2.3 Debug the project in VS Code
+### 2.3 Debug the project in VS Code
 
 Open src/Int2Str.c, and click to add a breakpoint (say, line 71).
 
@@ -125,57 +198,110 @@ Then, click **Run -> Start Debugging**
 ```
 Makefile is discussed in [COMP9024/C/HowToMake](../../C/HowToMake/README.md).
 
-## 3 Data structure and memory layout
 
-```C
-
- Stack:
-
-                ----------            ----------         ----------         ----------   
-  pStack -----> top         ------>     next      ------>  next      .....   next: NULL  
-                n                       item               item              item        
-                ----------            ----------         ----------         ----------  
-               struct Stack           StackNode          StackNode           StackNode   
-                                                                                                          
- 
- 
- In C:   // See COMP9024/Stacks/Stack_LL/src/Stack.c      
-
-  typedef long STACK_ITEM_T;
-
-  // the definition of a node in a linked list
-  typedef struct node {    
-      struct node *next;
-      STACK_ITEM_T item;
-  } StackNode;
-
-  // The type definition of our Stack (based on a linked list)
-  struct Stack {
-      // the top element on the stack; 
-      // i.e., the first element in the linked list
-      StackNode *top;    
-      // number of elements on stack
-      long n;
-  };
-
-  // API (Application Programming Interface) in "Stack.h"
-
-  struct Stack *CreateStack(void);
-
-  void ReleaseStack(struct Stack *pStack);
-
-  void StackPush(struct Stack *pStack, STACK_ITEM_T item);
-
-  STACK_ITEM_T StackPop(struct Stack *pStack);
-
-  STACK_ITEM_T StackPeek(struct Stack *pStack);
-
-  int StackIsEmpty(struct Stack *pStack);
+## 3 The push/pop operations in printing the string representations of an integer (e.g., x)
 
 
+### 3.1 make view
+
+**Click on the window of 'feh' or use your mouse scroll wheel to view images**.
+
+```sh
+BubbleSort$ make view
 ```
 
-## 4 The push/pop operations in printing the string representations of an integer (e.g., x)
+Here, **feh** is an image viewer available in [CSE VLAB](https://vlabgateway.cse.unsw.edu.au/).
+
+All of these images for visualizing algorithms are generated automatically in [COMP9024/Stacks/Stack2Dot](../Stack2Dot/README.md).
+
+```C
+    long x = 20249024;
+    long base = 10;   
+    do {
+        r = x % base;
+        x = x / base;
+        printf("push %d\n", r);
+        StackPush(pStack, r);
+    } while(x != 0);
+```
+|x| base | Remainder (r) | Quotient (x) |
+|:-------------:|:-------------:|:-------------:|:-------------:| 
+|20249024| 10 | r = x % base | x = x / base|
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|20249024| |  |<img src="images/Stack_0000.png" width="80%" height="80%"> |
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|2024902| 4| Push(4) |<img src="images/Stack_0001.png" width="80%" height="80%"> |
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|202490| 2| Push(2) |<img src="images/Stack_0002.png" width="80%" height="80%"> |
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|20249| 0| Push(0) |<img src="images/Stack_0003.png" width="80%" height="80%"> |
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|2024| 9| Push(9) |<img src="images/Stack_0004.png" width="80%" height="80%"> |
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|202| 4| Push(4) |<img src="images/Stack_0005.png" width="80%" height="80%"> |
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|20| 2| Push(2) |<img src="images/Stack_0006.png" width="80%" height="80%"> |
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|2| 0| Push(0) |<img src="images/Stack_0007.png" width="100%" height="100%"> |
+
+|Quotient|Remainder | Action |State | 
+|:-------------:|:-------------:|:-------------|:-------------|
+|0| 2| Push(2) |<img src="images/Stack_0008.png" width="100%" height="100%"> |
+
+| After pushing | 
+|:-------------|
+| <img src="images/Stack_0008.png" width="100%" height="100%"> |
+
+| Output | Action |  State |
+|:-------------:|:-------------:|:-------------|
+| 2| Pop() | <img src="images/Stack_0009.png" width="100%" height="100%"> |
+
+| Output | Action |  State |
+|:-------------:|:-------------:|:-------------|
+| 20| Pop() | <img src="images/Stack_0010.png" width="80%" height="80%"> |
+
+| Output | Action |  State |
+|:-------------:|:-------------:|:-------------|
+| 202| Pop() | <img src="images/Stack_0011.png" width="80%" height="80%"> |
+
+| Output | Action |  State |
+|:-------------:|:-------------:|:-------------|
+| 2024| Pop() | <img src="images/Stack_0012.png" width="80%" height="80%"> |
+
+| Output | Action |  State |
+|:-------------:|:-------------:|:-------------|
+| 20249| Pop() | <img src="images/Stack_0013.png" width="80%" height="80%"> |
+
+| Output | Action |  State |
+|:-------------:|:-------------:|:-------------|
+| 202490| Pop() | <img src="images/Stack_0014.png" width="80%" height="80%"> |
+
+| Output | Action |  State |
+|:-------------:|:-------------:|:-------------|
+| 2024902| Pop() | <img src="images/Stack_0015.png" width="80%" height="80%"> |
+
+| Output | Action |  State |
+|:-------------:|:-------------:|:-------------|
+| 20249024| Pop() | <img src="images/Stack_0016.png" width="80%" height="80%"> |
+
+### 3.2 make && ./main
+
 ``` sh
 Stack_LL$ make
 
@@ -260,7 +386,87 @@ After popping (First In Last Out):
 
 ```
 
-### Algorithm
+
+## 4 Data structure and memory layout
+
+```C
+
+ Stack:
+
+                ----------            ----------         ----------         ----------   
+  pStack -----> top         ------>     next      ------>  next      .....   next: NULL  
+                n                       item               item              item        
+                ----------            ----------         ----------         ----------  
+               struct Stack           StackNode          StackNode           StackNode   
+                                                                                                          
+ 
+ 
+ In C:   // See COMP9024/Stacks/Stack_LL/src/Stack.c      
+
+  typedef long STACK_ITEM_T;
+
+  // the definition of a node in a linked list
+  typedef struct node {    
+      struct node *next;
+      STACK_ITEM_T item;
+  } StackNode;
+
+  // The type definition of our Stack (based on a linked list)
+  struct Stack {
+      // the top element on the stack; 
+      // i.e., the first element in the linked list
+      StackNode *top;    
+      // number of elements on stack
+      long n;
+  };
+
+  // API (Application Programming Interface) in "Stack.h"
+
+  struct Stack *CreateStack(void);
+
+  void ReleaseStack(struct Stack *pStack);
+
+  void StackPush(struct Stack *pStack, STACK_ITEM_T item);
+
+  STACK_ITEM_T StackPop(struct Stack *pStack);
+
+  STACK_ITEM_T StackPeek(struct Stack *pStack);
+
+  int StackIsEmpty(struct Stack *pStack);
+
+
+```
+
+### How to write a header file in C
+
+Please refer to [Include Guard](https://github.com/sheisc/COMP9024/blob/main/C/HowToMake/src/myadd.h) and [Abstract Data Type](https://sheisc.github.io/slides/COMP9024/24T3/week01/slides.html#s64)
+
+**Linux Programmer's Manual**
+```sh
+$ man malloc
+
+#include <stdlib.h>
+
+// "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h"
+// typedef long unsigned int size_t;
+
+void *malloc(size_t size);
+void free(void *ptr);
+
+DESCRIPTION
+       The malloc() function allocates size bytes and returns a pointer to the
+       allocated  memory.   The memory is not initialized.  If size is 0, then
+       malloc() returns either NULL, or a unique pointer value that can  later
+       be successfully passed to free().
+
+       The  free()  function  frees  the memory space pointed to by ptr, which
+       must have been returned by a previous call to  malloc(),  calloc(),  or
+       realloc().   Otherwise, or if free(ptr) has already been called before,
+       undefined behavior occurs.  If ptr is NULL, no operation is performed.
+
+```
+
+## 5 Algorithm
 
 ```C
 void PrintInteger(STACK_ITEM_T x, int base) {
@@ -273,12 +479,12 @@ void PrintInteger(STACK_ITEM_T x, int base) {
     printf("------------- x = %ld, base = %d -------------\n\n", (long) x, base);
     
     // push the remainders onto the stack
-    while(x != 0) {
+    do {
         r = x % base;
         x = x / base;
         printf("push %d\n", r);
         StackPush(pStack, r);
-    }  
+    } while (x != 0);
 
     printf("\n\nAfter popping (First In Last Out):\n\n");
     PrintPrefix(base);
